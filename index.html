@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Restaurants - Zomato</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-red: #e23744;
+            --dark-red: #cb202d;
+            --light-gray: #f8f8f8;
+            --medium-gray: #a9a9a9;
+            --dark-gray: #4f4f4f;
+            --text-color: #1c1c1c;
+        }
+
+        body {
+            background-color: #d2f0eb;
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* Header Styles */
+        header {
+            background-color: rgb(107, 188, 241);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            color: var(--primary-red);
+            font-size: 28px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .location-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .location-selector:hover {
+            background-color: var(--light-gray);
+        }
+
+        .location-selector i {
+            color: var(--primary-red);
+        }
+
+        .location-text {
+            font-weight: 500;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 25px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-color);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-red);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), 
+                        url('https://images.unsplash.com/photo-1585937421612-70a008356fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 80px 5%;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 42px;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        .search-container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-container input {
+            flex: 1;
+            border: none;
+            padding: 15px 20px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .search-container button {
+            background: var(--primary-red);
+            color: white;
+            border: none;
+            padding: 0 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s;
+        }
+
+        .search-container button:hover {
+            background: var(--dark-red);
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            background: white;
+            border: 1px solid #e0e0e0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--primary-red);
+            color: var(--primary-red);
+        }
+
+        .filter-btn.active {
+            background: var(--primary-red);
+            color: white;
+            border-color: var(--primary-red);
+        }
+
+        /* Restaurant Grid */
+        .restaurant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .restaurant-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .restaurant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+        }
+
+        .restaurant-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .restaurant-info {
+            padding: 15px;
+        }
+
+        .restaurant-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .restaurant-cuisine {
+            color: var(--medium-gray);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .restaurant-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .rating {
+            background: #267e3e;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 600;
+        }
+
+        .price {
+            color: var(--dark-gray);
+        }
+
+        /* Collections Section */
+        .collections {
+            margin: 60px 0;
+        }
+
+        .collection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .collection-card {
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            height: 300px;
+            cursor: pointer;
+        }
+
+        .collection-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .collection-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            padding: 20px;
+            color: white;
+        }
+
+        .collection-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .collection-count {
+            font-size: 14px;
+        }
+
+        /* Footer */
+        footer {
+            background: #2b1e16;
+            color: white;
+            padding: 50px 5% 20px;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+        }
+
+        .footer-column h3 {
+            color: var(--primary-red);
+            margin-bottom: 20px;
+            font-size: 18px;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 12px;
+        }
+
+        .footer-column ul li a {
+            color: #e0e0e0;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-column ul li a:hover {
+            color: white;
+        }
+
+        .copyright {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #444;
+            color: #a9a9a9;
+            font-size: 14px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .top-nav {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .search-container {
+                flex-direction: column;
+            }
+
+            .search-container button {
+                padding: 12px;
+            }
+
+            .restaurant-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="top-nav">
+            <a href="#" class="logo">zomato</a>
+            <div class="location-selector">
+                <i class="fas fa-map-marker-alt"></i>
+                <span class="location-text">Location</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="nav-links">
+                <a href="#"><i class="fas fa-search"></i> Search</a>
+                <a href="#"><i class="far fa-user"></i> Login</a>
+                <a href="#"><i class="fas fa-shopping-cart"></i> Cart</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>Discover the Best Food & Drinks</h1>
+        <p>Find the top restaurants, cafes, and bars, rated and reviewed by foodies like you</p>
+        <div class="search-container">
+            <input type="text" placeholder="Search for restaurants, cuisines, or dishes...">
+            <button><i class="fas fa-search"></i> Search</button>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Collections Section -->
+        <section class="collections">
+            <h2 class="section-title">Collections</h2>
+            <p>Explore curated lists of top restaurants, cafes, and bars, based on trends</p>
+            <div class="collection-grid">
+                <div class="collection-card">
+                    <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Trending" class="collection-image">
+                    <div class="collection-overlay">
+                        <div class="collection-name">Trending This Week</div>
+                        <div class="collection-count">25 places</div>
+                    </div>
+                </div>
+                <div class="collection-card">
+                    <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Best Rated" class="collection-image">
+                    <div class="collection-overlay">
+                        <div class="collection-name">Best of Karachi</div>
+                        <div class="collection-count">18 places</div>
+                    </div>
+                </div>
+                <div class="collection-card">
+                    <img src="https://images.unsplash.com/photo-1467003909585-2f8a72700288?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Newly Opened" class="collection-image">
+                    <div class="collection-overlay">
+                        <div class="collection-name">Newly Opened</div>
+                        <div class="collection-count">12 places</div>
+                    </div>
+                </div>
+                <div class="collection-card">
+                    <img src="https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Great Food" class="collection-image">
+                    <div class="collection-overlay">
+                        <div class="collection-name">Great Food, No Frills</div>
+                        <div class="collection-count">22 places</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Filters -->
+        <div class="filters">
+            <div class="filter-btn active">All</div>
+            <div class="filter-btn">Delivery</div>
+            <div class="filter-btn">Dine-out</div>
+            <div class="filter-btn">Nightlife</div>
+            <div class="filter-btn">Rating: 4.0+</div>
+            <div class="filter-btn">Pure Veg</div>
+            <div class="filter-btn">Offers</div>
+            <div class="filter-btn">
+                <i class="fas fa-sliders-h"></i> Filters
+            </div>
+            <div class="filter-btn">
+                <i class="fas fa-sort-amount-down"></i> Sort By
+            </div>
+        </div>
+
+        <!-- Restaurant Listings -->
+        <h2 class="section-title">All Restaurants in karachi</h2>
+        <div class="restaurant-grid">
+            <!-- Restaurant 1 -->
+            <div class="restaurant-card">
+                <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Royal Darbar" class="restaurant-image">
+                <div class="restaurant-info">
+                    <div class="restaurant-name">Lavish Dine</div>
+                    <div class="restaurant-cuisine">Northern, Mughlai, Chinese</div>
+                    <div class="restaurant-details">
+                        <div class="rating">
+                            <i class="fas fa-star"></i> 4.2
+                        </div>
+                        <div class="price">approx Rs.1500 per person</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurant 2 -->
+            <div class="restaurant-card">
+                <img src="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Spice Garden" class="restaurant-image">
+                <div class="restaurant-info">
+                    <div class="restaurant-name">Shanghai Social</div>
+                    <div class="restaurant-cuisine">Chinese, korean</div>
+                    <div class="restaurant-details">
+                        <div class="rating">
+                            <i class="fas fa-star"></i> 4.5
+                        </div>
+                        <div class="price">approx Rs.1800 per person</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurant 3 -->
+            <div class="restaurant-card">
+                <img src="https://images.unsplash.com/photo-1554679665-f5537f187268?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Pizza Hub" class="restaurant-image">
+                <div class="restaurant-info">
+                    <div class="restaurant-name">Pizza Hut</div>
+                    <div class="restaurant-cuisine">Italian, Pizza, cheesy, BBQ</div>
+                    <div class="restaurant-details">
+                        <div class="rating">
+                            <i class="fas fa-star"></i> 4.0
+                        </div>
+                        <div class="price">approx Rs.800 per person</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurant 4 -->
+            <div class="restaurant-card">
+                <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Kutch Dham" class="restaurant-image">
+                <div class="restaurant-info">
+                    <div class="restaurant-name">Broadway Pizza</div>
+                    <div class="restaurant-cuisine">BBQ, tikka, Pasta, lava cake</div>
+                    <div class="restaurant-details">
+                        <div class="rating">
+                            <i class="fas fa-star"></i> 4.3
+                        </div>
+                        <div class="price">approx Rs.900 per person</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurant 5 -->
+            <div class="restaurant-card">
+                <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Green Leaf" class="restaurant-image">
+                <div class="restaurant-info">
+                    <div class="restaurant-name">Del frio</div>
+                    <div class="restaurant-cuisine">Healthy Food, Salads, Smoothies, cakes</div>
+                    <div class="restaurant-details">
+                        <div class="rating">
+                            <i class="fas fa-star"></i> 4.1
+                        </div>
+                        <div class="price">₹650 for two</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurant 6 
+            <div class="restaurant-card">
+                <img src="https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Tandoori Nights" class="restaurant-image">
+                <div class="restaurant-info">
+                    <div class="restaurant-name">Tandoori Nights</div>
+                    <div class="restaurant-cuisine">North Indian, Barbecue, Biryani</div>
+                    <div class="restaurant-details">
+                        <div class="rating">
+                            <i class="fas fa-star"></i> 4.4
+                        </div>
+                        <div class="price">₹900 for two</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurant 7
+            <div class="restaurant-card">
+                <img src="https://images.unsplash.com/photo-1563379926898-05f4575a45d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Cafe Mocha" class="restaurant-image">
+                <div class="restaurant-info">
+                    <div class="restaurant-name">Cafe Mocha</div>
+                    <div class="restaurant-cuisine">Cafe, Continental, Desserts</div>
+                    <div class="restaurant-details">
+                        <div class="rating">
+                            <i class="fas fa-star"></i> 4.2
+                        </div>
+                        <div class="price">₹550 for two</div>
+                    </div>
+                </div>
+            </div>
+
+             Restaurant 8
+            <div class="restaurant-card">
+                <img src="https://images.unsplash.com/photo-1565299585323-38174c13fae8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80" alt="Chinese Wok" class="restaurant-image">
+                <div class="restaurant-info">
+                    <div class="restaurant-name">Chinese Wok</div>
+                    <div class="restaurant-cuisine">Chinese, Asian, Thai</div>
+                    <div class="restaurant-details">
+                        <div class="rating">
+                            <i class="fas fa-star"></i> 4.0
+                        </div>
+                        <div class="price">₹750 for two</div>
+                    </div>
+                </div>
+            </div>
+        </div>-->
+    </main>>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>ABOUT ZOMATO</h3>
+                <ul>
+                    <li><a href="#">Who We Are</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Work With Us</a></li>
+                    <li><a href="#">Investor Relations</a></li>
+                    <li><a href="#">Report Fraud</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>ZOMAVERSE</h3>
+                <ul>
+                    <li><a href="#">Zomato</a></li>
+                    <li><a href="#">Feeding Karachi</a></li>
+                    <li><a href="#">Hyperpure</a></li>
+                    <li><a href="#">Zomaland</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>FOR RESTAURANTS</h3>
+                <ul>
+                    <li><a href="#">Partner With Us</a></li>
+                    <li><a href="#">Apps For You</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-column">
+                <h3>LEARN MORE</h3>
+                <ul>
+                    <li><a href="#">Privacy</a></li>
+                    <li><a href="#">Security</a></li>
+                    <li><a href="#">Terms</a></li>
+                    <li><a href="#">Sitemap</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="copyright">
+            &copy; 2025 Hamza Naseer. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        // Simple filter functionality
+        document.querySelectorAll('.filter-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                // Add active class to clicked button
+                this.classList.add('active');
+            });
+        });
+
+        // Restaurant card click functionality
+        document.querySelectorAll('.restaurant-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const restaurantName = this.querySelector('.restaurant-name').textContent;
+                alert(`You clicked on ${restaurantName}. In a real app, this would navigate to the restaurant page.`);
+            });
+        });
+    </script>
+</body>
+</html>
